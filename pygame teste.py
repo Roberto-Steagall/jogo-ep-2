@@ -100,8 +100,9 @@ class inimigo(object):
         self.height = height
         self.end = end
         self.path = [self.x, self.end]
-        self.vel = 10
+        self.vel = 6
         self.walkCount = 0
+        self.hitbox = (self.x + 20, self.y + 5, 25, 55)
 
     def draw(self,tela):
         self.move()
@@ -114,6 +115,8 @@ class inimigo(object):
         else:
             tela.blit(self.anda_esquerda[self.walkCount //3], (self.x, self.y))
             self.walkCount += 1
+        self.hitbox = (self.x + 8, self.y + 10, 45, 50)
+        pygame.draw.rect(tela, (255, 0, 0), self.hitbox, 2)
             
 
     def move (self):
@@ -129,6 +132,11 @@ class inimigo(object):
             else:
                 self.vel = self.vel * -1        #faz voltar para a direita
                 self.walkCount = 0
+
+    def hit(self):
+        print ('hit')
+        pass
+
 
 
 
@@ -150,16 +158,28 @@ def DesenhoJanela(bg):
 
 pessoa = player(5, 410, 64, 64)
 contra = inimigo(100, 410, 64, 64, (LarguraTela - 100))
+loop_tiro = 0
 pelotas = []
 run = True
 while run:
     pygame.time.delay(39)
 
+    if loop_tiro > 0:
+        loop_tiro += 1
+    if loop_tiro >3:
+        loop_tiro = 0
+
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
-    for pelota in pelotas: 
+    for pelota in pelotas:
+        if pelota.y - pelota.raio < contra.hitbox[1] + contra.hitbox[3] and pelota.y + pelota.raio > contra.hitbox[1]:
+            if pelota.x + pelota.raio > contra.hitbox[0] and pelota.x - pelota.raio < contra.hitbox[0] + contra.hitbox[2]:
+                contra.hit()
+                pelotas.pop(pelotas.index(pelota))
+
         if pelota.x < LarguraTela and pelota.x > 0:   #anda se estiver dentro da area da tela
             pelota.x += pelota.vel
         else:
@@ -168,7 +188,7 @@ while run:
 
     tecla = pygame.key.get_pressed()
 
-    if tecla[pygame.K_SPACE]:
+    if tecla[pygame.K_SPACE] and loop_tiro == 0:
         pygame.key.set_repeat(100, 100)
         if pessoa.esquerda:
             facing = -1
@@ -176,7 +196,11 @@ while run:
             facing = 1
         if len(pelotas) < 5:
             pelotas.append(projectile(round(pessoa.x + pessoa.width //2), round(pessoa.y + pessoa.height //2), 3, (110,0,110), facing))
-    
+        
+        loop_tiro = 1
+
+
+
 # os "and" no codigo fazem com que o personagem nao saia da tela
     
     if tecla[pygame.K_a] and pessoa.x > pessoa.vel:
