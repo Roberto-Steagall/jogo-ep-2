@@ -1,7 +1,7 @@
 import pygame
 pygame.init ()
 
-LarguraTela = 1000
+LarguraTela = 600
 AlturaTela = 500
 
 tela = pygame.display.set_mode ((LarguraTela, AlturaTela))
@@ -16,6 +16,8 @@ walkLeft = [pygame.image.load('e_00.png'), pygame.image.load('e_01.png'), pygame
 bg1 = pygame.image.load('background.png')
 char = [pygame.image.load('standing00.png'), pygame.image.load('standing01.png'), pygame.image.load('standing02.png'), pygame.image.load('standing03.png'), pygame.image.load('standing04.png'), pygame.image.load('standing05.png'), pygame.image.load('standing06.png'), pygame.image.load('standing07.png'), pygame.image.load('standing08.png'), pygame.image.load('standing09.png'), pygame.image.load('standing10.png'), pygame.image.load('standing11.png'), pygame.image.load('standing12.png')]
 bg2 = pygame.image.load('bg.jpg')
+bg3 = pygame.image.load('cCqp22b.png')
+
 bg = bg1
 class player(object):
     def __init__(self, x, y, width, height):
@@ -51,10 +53,7 @@ class player(object):
         pygame.draw.rect(tela, (255, 0, 0), self.hitbox, 2)
         
 
-    def toque (self):
-        print ('toque')
-
-class projectile(object): #pelotas (balas, pq o nome é estranho mesmo)
+class projectile(object):           #pelotas (balas, pq o nome é estranho mesmo)
     def __init__(self, x, y, raio, cor, facing):
         self.x = x
         self.y = y
@@ -67,30 +66,11 @@ class projectile(object): #pelotas (balas, pq o nome é estranho mesmo)
         pygame.draw.circle(tela, self.cor, (self.x,self.y), self.raio)
 
 
-class fase(object):
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.cor = cor
-        self.width = width
-        self.height = height
-        self.facing = facing
-        self.porta = (self.x + 25, self.y + 5, 25, 55)
-
-    def draw(self,tela):
-        self.porta = (self.x + 25, self.y + 5, 25, 55)
-        pygame.draw.rect(tela, (255, 255, 255), self.porta, 3 )
-
-    def bg_change(bg):
-        bg1 = -1
-        bg2 = 1
-
-        pygame.display.update()
-
-class inimigo(object):
+class inimigo(object):  #desenha o inimigo
 
     anda_direita = [pygame.image.load('inimigo0.png'), pygame.image.load('inimigo1.png'), pygame.image.load('inimigo2.png'), pygame.image.load('inimigo3.png'), pygame.image.load('inimigo4.png'), pygame.image.load('inimigo5.png')]           #colocar imagens do inimigo andando
     anda_esquerda = [pygame.image.load('inimigo20.png'), pygame.image.load('inimigo21.png'), pygame.image.load('inimigo22.png'), pygame.image.load('inimigo23.png'), pygame.image.load('inimigo24.png'), pygame.image.load('inimigo25.png')]
+
 
 
     def __init__(self, x, y, width, height, end):
@@ -100,7 +80,7 @@ class inimigo(object):
         self.height = height
         self.end = end
         self.path = [self.x, self.end]
-        self.vel = 6
+        self.vel = 6                        #velocidade do inimigo
         self.walkCount = 0
         self.hitbox = (self.x + 20, self.y + 5, 25, 55)
 
@@ -133,9 +113,9 @@ class inimigo(object):
                 self.vel = self.vel * -1        #faz voltar para a direita
                 self.walkCount = 0
 
-    def hit(self):
+    def hit(self):           #escreve hit no console, pra saber quando acertou os tiros
         print ('hit')
-        pass
+        
 
 
 
@@ -161,10 +141,11 @@ contra = inimigo(100, 410, 64, 64, (LarguraTela - 100))
 loop_tiro = 0
 pelotas = []
 run = True
+
 while run:
     pygame.time.delay(39)
 
-    if loop_tiro > 0:
+    if loop_tiro > 0:                   #faz o tiro sumir / aparecer de acordo com onde está na tela, se bateu no inimigo ou se tem o maximo de balas já na tela
         loop_tiro += 1
     if loop_tiro >3:
         loop_tiro = 0
@@ -178,7 +159,7 @@ while run:
         if pelota.y - pelota.raio < contra.hitbox[1] + contra.hitbox[3] and pelota.y + pelota.raio > contra.hitbox[1]:
             if pelota.x + pelota.raio > contra.hitbox[0] and pelota.x - pelota.raio < contra.hitbox[0] + contra.hitbox[2]:
                 contra.hit()
-                pelotas.pop(pelotas.index(pelota))
+                pelotas.pop(pelotas.index(pelota))          #faz a bala desaparecer por encostar no inimigo
 
         if pelota.x < LarguraTela and pelota.x > 0:   #anda se estiver dentro da area da tela
             pelota.x += pelota.vel
@@ -186,15 +167,15 @@ while run:
             pelotas.pop(pelotas.index(pelota))      #deleta a pelota se chegar no final da tela
 
 
-    tecla = pygame.key.get_pressed()
+    tecla = pygame.key.get_pressed() #facilitar a escrita...
 
-    if tecla[pygame.K_SPACE] and loop_tiro == 0:
-        pygame.key.set_repeat(100, 100)
+    if tecla[pygame.K_SPACE] and loop_tiro == 0:            #define o loop dos tiros com espaço
+        pygame.key.set_repeat(100, 100)  #delay entre tiros
         if pessoa.esquerda:
             facing = -1
         else:
             facing = 1
-        if len(pelotas) < 5:
+        if len(pelotas) < 5:   #maximo de balas na tela
             pelotas.append(projectile(round(pessoa.x + pessoa.width //2), round(pessoa.y + pessoa.height //2), 3, (110,0,110), facing))
         
         loop_tiro = 1
@@ -219,7 +200,6 @@ while run:
   #pulo      
     if not(pessoa.isJump):
         if tecla[pygame.K_w]:
-            bg = bg2
             pessoa.isJump = True
             pessoa.direita = False
             pessoa.esquerda = False
@@ -240,11 +220,18 @@ while run:
             pessoa.isJump = False
             pessoa.jumpCount = 10
 
-    if tecla[pygame.K_p]:
-        bg = -1 ** (bg + 1)
-
         pygame.display.update()
+
+    if tecla[pygame.K_p]:   #muda o fundo pra outra imagem sempre que aperta "p"
+        
+        if bg == bg1:
+            bg = bg2
+        elif bg == bg2:
+            bg = bg3
+        else:
+            bg = bg1
             
+        pygame.display.update()
 
     
     DesenhoJanela(bg)
