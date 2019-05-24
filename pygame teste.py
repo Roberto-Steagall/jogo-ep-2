@@ -1,3 +1,7 @@
+#git add . -- mandar todas as mudanças
+#git commit -m ""
+#git pull
+#git push
 import pygame
 pygame.init ()
 import numpy as np
@@ -204,11 +208,17 @@ def DesenhoJanela(bg):
         
     pygame.display.update()
 
-
-                                                                                                        #loop principal
+class barreira(object):
+    def __init__(self,x,y,width,height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+                                                                                                                #loop principal
 
 pessoa = player(5, 410, 64, 64)
 contra = inimigo(100, 410, 64, 64, (LarguraTela - 100))
+bar = barreira(100, 415, 50,100)
 pelotas = []
 run = True
 clock = pygame.time.Clock()
@@ -216,8 +226,8 @@ contador=0
 delay=0
 
 while run:
-    
-    #pygame.time.delay(39)
+   
+    pygame.time.delay(10)
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -276,18 +286,22 @@ while run:
             #por ser negativo, neg inverte a posicao e faz cair de volta
             if pessoa.jumpCount < 0:
                 neg = -1
-            pessoa.y -= (pessoa.jumpCount ** 2) * 0.3 * neg
-            pessoa.jumpCount -= 1
+            if not colisao(pessoa,bar):
+                pessoa.y -= (pessoa.jumpCount ** 2) * 0.3 * neg
+                pessoa.jumpCount -= 1
+            else:
+                pessoa.jumpCount=0
             
         else:
             pessoa.isJump = False
             pessoa.jumpCount = 10
     
-    if colisao(pessoa,contra):
-        tela.blit(game_over,(500-228,250-43))
-        pygame.display.update()
-        pygame.time.delay(600)
-        run=False
+    #if colisao(pessoa,contra):
+        #continue
+        #tela.blit(game_over,(500-228,250-43))
+        #pygame.display.update()
+        #pygame.time.delay(600)
+        #run=False
         
         
     if tecla[pygame.K_p]:
@@ -304,7 +318,7 @@ while run:
         delay=0
     delay+=1
     #DesenhoJanela(bg)
-    clock.tick(60)
+    clock.tick(35)
 
 
 pygame.quit()
